@@ -5,6 +5,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>آزمون جامع و نهایی CNC</title>
     <script src="questions.js"></script>
+    
+    <!-- Google Fonts - Vazirmatn -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         :root {
@@ -16,19 +22,20 @@
             --warning-color: #f39c12;
             --dark-color: #2c3e50;
             --shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            --font-family: 'Vazirmatn', sans-serif;
         }
         
         * {
             box-sizing: border-box;
             margin: 0;
             padding: 0;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-family: var(--font-family);
         }
         
         body {
             background-color: #f5f7fa;
             color: #333;
-            line-height: 1.6;
+            line-height: 1.7;
             padding: 10px;
         }
         
@@ -60,6 +67,7 @@
         header h1 {
             font-size: 1.8rem;
             margin-bottom: 10px;
+            font-weight: 700;
         }
                 
         .exam-info {
@@ -89,7 +97,7 @@
             color: white;
             padding: 5px 15px;
             border-radius: 50px;
-            font-weight: bold;
+            font-weight: 700;
             font-size: 1.2rem;
             display: flex;
             align-items: center;
@@ -136,7 +144,7 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            font-weight: bold;
+            font-weight: 700;
             font-size: 1.2rem;
         }
         
@@ -150,7 +158,7 @@
             display: flex;
             flex-direction: column;
             gap: 12px;
-            padding-right: 55px; /* Indent options under question text */
+            padding-right: 55px;
         }
         
         .option {
@@ -192,6 +200,7 @@
             text-align: center;
             padding-bottom: 10px;
             border-bottom: 2px solid var(--secondary-color);
+            font-weight: 700;
         }
         
         .question-buttons {
@@ -206,7 +215,7 @@
             border-radius: 8px;
             border: 2px solid #ddd;
             background-color: white;
-            font-weight: bold;
+            font-weight: 700;
             cursor: pointer;
             transition: all 0.3s;
             display: flex;
@@ -257,7 +266,7 @@
             padding: 12px 25px;
             border: none;
             border-radius: 8px;
-            font-weight: bold;
+            font-weight: 600;
             cursor: pointer;
             transition: all 0.3s;
             font-size: 1rem;
@@ -325,14 +334,12 @@
         /* --- Responsive Styles --- */
         @media (max-width: 992px) {
             .main-content {
-                flex-direction: column;
+                flex-direction: column-reverse;
             }
             .questions-section {
                 border-left: none;
-                order: 1; /* Show questions first */
             }
             .question-nav {
-                order: 2; /* Show nav panel after questions */
                 min-width: unset;
                 width: 100%;
                 border-top: 2px solid #ddd;
@@ -707,7 +714,7 @@
                 }
             });
             if (questionsToReview.length === 0) {
-                reviewContent.innerHTML = '<p style="text-align:center; padding: 20px;">هیچ سوالی برای بازبینی نشان‌گذاری نشده است.</p>';
+                reviewContent.innerHTML = '<p style="text-align:center; padding: 20px; font-weight: 500;">هیچ سوالی برای بازبینی نشان‌گذاری نشده است.</p>';
                 return;
             }
         } else {
