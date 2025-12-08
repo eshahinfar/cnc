@@ -97,13 +97,13 @@ header h1 {
 .questions-section {
     flex: 3;
     padding: 25px;
-    border-left: 1px solid #eee;
 }
 
 .question-nav {
     flex: 1;
     padding: 25px;
     background-color: #f9f9f9;
+    border-right: 1px solid #eee; /* Changed from border-left */
     min-width: 300px;
     display: flex;
     flex-direction: column;
@@ -319,14 +319,17 @@ header h1 {
 /* --- Responsive Styles --- */
 @media (max-width: 992px) {
     .main-content {
-        flex-direction: column-reverse;
+        flex-direction: column; /* This is the key change */
     }
     .questions-section {
-        border-left: none;
+        border-left: none; /* remove border from desktop */
+        order: 1; /* Show questions first */
     }
     .question-nav {
+        order: 2; /* Show nav panel after questions */
         min-width: unset;
         width: 100%;
+        border-right: none; /* remove border from desktop */
         border-top: 2px solid #ddd;
     }
     .logo {
