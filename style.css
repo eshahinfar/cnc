@@ -91,19 +91,20 @@ header h1 {
 
 .main-content {
     display: flex;
+    flex-direction: row; /* Ensures side-by-side layout on desktop */
     min-height: 500px;
 }
 
 .questions-section {
-    flex: 3;
+    flex: 3; /* Takes 3 parts of the space */
     padding: 25px;
 }
 
 .question-nav {
-    flex: 1;
+    flex: 1; /* Takes 1 part of the space */
     padding: 25px;
     background-color: #f9f9f9;
-    border-right: 1px solid #eee; /* Changed from border-left */
+    border-right: 1px solid #eee; /* Border between nav and content */
     min-width: 300px;
     display: flex;
     flex-direction: column;
@@ -319,18 +320,17 @@ header h1 {
 /* --- Responsive Styles --- */
 @media (max-width: 992px) {
     .main-content {
-        flex-direction: column; /* This is the key change */
+        flex-direction: column; /* Stack vertically on smaller screens */
     }
     .questions-section {
-        border-left: none; /* remove border from desktop */
-        order: 1; /* Show questions first */
+        order: 1; /* Questions first */
     }
     .question-nav {
-        order: 2; /* Show nav panel after questions */
+        order: 2; /* Nav panel second */
         min-width: unset;
         width: 100%;
-        border-right: none; /* remove border from desktop */
-        border-top: 2px solid #ddd;
+        border-right: none; /* Remove side border */
+        border-top: 2px solid #ddd; /* Add top border */
     }
     .logo {
         display: none;
