@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>آزمون تراشکاری CNC فنی حرفه‌ای</title>
+    <title>آزمون جامع</title>
     
     <!-- Google Fonts - Vazirmatn -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -13,6 +13,10 @@
     <!-- Font Awesome for Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
+    <!-- PDF Generation Libraries -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
     <!-- Internal CSS Block -->
     <style>
         :root {
@@ -262,15 +266,52 @@
         .q-btn.marked { position: relative; }
         .q-btn.marked::after { content: '\f02e'; font-family: 'Font Awesome 6 Free'; font-weight: 900; color: var(--warning-color); position: absolute; top: -5px; right: -5px; font-size: 1rem; background: white; border-radius: 50%; padding: 2px; }
         .actions { display: flex; flex-direction: column; gap: 15px; margin-bottom: 20px; padding-bottom: 20px; border-bottom: 1px solid #ddd; }
-        .btn { padding: 12px 25px; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; transition: all 0.3s; font-size: 1rem; display: flex; align-items: center; justify-content: center; gap: 10px; }
+        .btn { padding: 10px 20px; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; transition: all 0.3s; font-size: 0.95rem; display: flex; align-items: center; justify-content: center; gap: 8px; }
         .btn-primary { background-color: var(--primary-color); color: white; }
         .btn-success { background-color: var(--success-color); color: white; }
-        .btn-warning { background-color: var(--warning-color); color: white; }
+        .btn-warning { background-color: #e67e22; color: white; }
         .btn-danger { background-color: var(--accent-color); color: white; }
         .btn:hover { opacity: 0.9; transform: translateY(-2px); box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        
+        /* --- Results Page Styles --- */
         .results-page { display: none; padding: 40px; }
-        .review-container { padding: 20px; }
-        .review-question { border-bottom: 1px solid #eee; padding: 20px 0; text-align: right; }
+        #results-summary { text-align:center; padding-bottom: 20px; }
+        
+        .results-toolbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px;
+            background-color: #f8f9fa;
+            border-radius: 12px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+            gap: 15px;
+            border: 1px solid #e9ecef;
+        }
+
+        .toolbar-group {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .review-container { padding-top: 20px; }
+        .review-question {
+            background-color: #fff;
+            border: 1px solid #e9ecef;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 15px;
+            text-align: right;
+            box-shadow: 0 3px 8px rgba(0,0,0,0.05);
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .review-question:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(0,0,0,0.08);
+        }
+
         .review-option { display: flex; align-items: center; background-color: #f8f9fa; border: 1px solid #e9ecef; border-radius: 8px; padding: 10px 15px; margin-bottom: 8px; gap: 10px; }
         .review-option.user-incorrect { background-color: #f8d7da !important; border-color: var(--accent-color) !important; }
         .review-option.correct-answer { background-color: #d4edda !important; border-color: var(--success-color) !important; }
@@ -281,6 +322,16 @@
             .questions-section { order: 1; border-left: none; }
             .question-nav { order: 2; min-width: unset; width: 100%; border-right: none; border-top: 2px solid #ddd; }
             .logo { display: none; }
+        }
+        @media (max-width: 768px) {
+            .results-toolbar {
+                flex-direction: column;
+                align-items: stretch;
+                gap: 20px;
+            }
+            .toolbar-group {
+                justify-content: center;
+            }
         }
         @media (max-width: 576px) {
             body { padding: 0; }
@@ -300,7 +351,7 @@
         <!-- Start Page -->
         <div id="start-container">
             <div class="start-icon"><i class="fas fa-tasks"></i></div>
-            <h2>به آزمون تراش CNC خوش آمدید</h2>
+            <h2>به آزمون جامع خوش آمدید</h2>
             <p class="intro-text">برای شروع، دسته‌بندی(ها) و تنظیمات آزمون را مشخص کرده و روی دکمه "شروع آزمون" کلیک کنید.</p>
             
             <div class="start-options">
@@ -324,7 +375,7 @@
         </div>
 
         <!-- Quiz Area (Initially Hidden) -->
-        <div id="quiz-area" style="display: none;">
+        <div id="quiz-area">
             <header>
                 <div class="logo"><i class="fas fa-cogs"></i></div>
                 <h1 id="quiz-title">آزمون</h1>
@@ -356,19 +407,22 @@
 
         <!-- Results Page (Initially Hidden) -->
         <div class="results-page" id="results-page">
-            <div style="text-align:center; padding: 20px;">
+            <div id="results-summary">
                 <h2>نتایج آزمون</h2>
                 <p id="score" style="font-size: 1.5rem;">نمره شما: <strong style="font-size: 1.8em;">0%</strong></p>
                 <p id="score-summary">شما به 0 سوال از 0 سوال پاسخ صحیح دادید.</p>
-                <button class="btn btn-primary" id="restart-btn" style="margin-top:20px;">شروع آزمون جدید</button>
             </div>
-            <div id="review-filters" style="text-align: center; padding: 20px; border-top: 1px solid #eee; display: flex; justify-content:center; gap: 15px;">
-                 <button class="btn btn-primary" id="review-all-btn">نمایش همه</button>
-                 <button class="btn btn-warning" id="review-marked-btn">فقط نشان شده ها</button>
+            <div class="results-toolbar">
+                <div class="toolbar-group">
+                    <button class="btn btn-primary" id="restart-btn"><i class="fas fa-redo"></i> آزمون جدید</button>
+                    <button class="btn btn-success" id="save-pdf-btn"><i class="fas fa-file-pdf"></i> ذخیره PDF</button>
+                </div>
+                <div class="toolbar-group" id="review-filters">
+                     <button class="btn btn-primary" id="review-all-btn">نمایش همه</button>
+                     <button class="btn btn-warning" id="review-marked-btn">فقط نشان شده ها</button>
+                </div>
             </div>
-             <div class="review-container" id="review-container">
-                <div id="review-content"></div>
-            </div>
+             <div class="review-container" id="review-content"></div>
         </div>
     </div>
     
@@ -396,6 +450,7 @@
         const scoreElement = document.getElementById('score');
         const scoreSummary = document.getElementById('score-summary');
         const restartBtn = document.getElementById('restart-btn');
+        const savePdfBtn = document.getElementById('save-pdf-btn');
         const reviewContent = document.getElementById('review-content');
         const reviewAllBtn = document.getElementById('review-all-btn');
         const reviewMarkedBtn = document.getElementById('review-marked-btn');
@@ -483,6 +538,8 @@
         restartBtn.addEventListener('click', () => location.reload());
         reviewAllBtn.addEventListener('click', () => displayReview('all'));
         reviewMarkedBtn.addEventListener('click', () => displayReview('marked'));
+        savePdfBtn.addEventListener('click', saveResultsAsPdf);
+
 
         // --- Core Functions ---
         function handleCheckboxChange(e) {
@@ -731,7 +788,7 @@
             const score = activeQuizQuestions.reduce((count, q, i) => count + (userAnswers[i] === q.answer ? 1 : 0), 0);
 
             quizArea.style.display = 'none';
-            resultsPage.style.display = 'block';
+            resultsPage.style.display = 'block'; // Changed to block
             
             const percentage = activeQuizQuestions.length > 0 ? ((score / activeQuizQuestions.length) * 100).toFixed(2) : 0;
             scoreElement.innerHTML = `نمره شما: <strong style="font-size: 1.8em;">${percentage}%</strong>`;
@@ -779,6 +836,66 @@
             }).join('');
         }
 
+        function saveResultsAsPdf() {
+            const { jsPDF } = window.jspdf;
+            const contentToSave = document.getElementById('results-page');
+            const pdfButton = document.getElementById('save-pdf-btn');
+
+            pdfButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> در حال ساخت...';
+            pdfButton.disabled = true;
+
+            // Scroll to the top of the element to ensure all content is visible for canvas
+            window.scrollTo(0, 0);
+
+            html2canvas(contentToSave, { 
+                scale: 1.5,
+                useCORS: true,
+                onclone: (clonedDoc) => {
+                    // Hide the toolbar in the cloned document for a clean PDF
+                    clonedDoc.querySelector('.results-toolbar').style.display = 'none';
+                }
+            }).then(canvas => {
+                const imgData = canvas.toDataURL('image/jpeg', 0.9);
+                const pdf = new jsPDF({
+                    orientation: 'p',
+                    unit: 'mm',
+                    format: 'a4'
+                });
+
+                const pageMargin = 15;
+                const pdfWidth = pdf.internal.pageSize.getWidth();
+                const contentWidth = pdfWidth - (pageMargin * 2);
+                const pdfHeight = pdf.internal.pageSize.getHeight();
+                const contentHeightOnPage = pdfHeight - (pageMargin * 2);
+
+                const canvasAspectRatio = canvas.height / canvas.width;
+                const totalImageHeight = contentWidth * canvasAspectRatio;
+
+                let heightLeft = totalImageHeight;
+                let position = 0;
+
+                pdf.addImage(imgData, 'JPEG', pageMargin, pageMargin, contentWidth, totalImageHeight);
+                heightLeft -= contentHeightOnPage;
+
+                while (heightLeft > 0) {
+                    position -= contentHeightOnPage;
+                    pdf.addPage();
+                    pdf.addImage(imgData, 'JPEG', pageMargin, position + pageMargin, contentWidth, totalImageHeight);
+                    heightLeft -= contentHeightOnPage;
+                }
+
+                pdf.save('Quiz-Results.pdf');
+
+                pdfButton.innerHTML = '<i class="fas fa-file-pdf"></i> ذخیره PDF';
+                pdfButton.disabled = false;
+            }).catch(err => {
+                console.error("Error generating PDF:", err);
+                alert("خطایی در ساخت فایل PDF رخ داد: " + err.message);
+                pdfButton.innerHTML = '<i class="fas fa-file-pdf"></i> ذخیره PDF';
+                pdfButton.disabled = false;
+            });
+        }
+
         function shuffleArray(array) {
             for (let i = array.length - 1; i > 0; i--) {
                 const j = Math.floor(Math.random() * (i + 1));
@@ -789,4 +906,3 @@
     </script>
 </body>
 </html>
-
