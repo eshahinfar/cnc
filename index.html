@@ -216,6 +216,14 @@
             cursor: pointer;
             flex-grow: 1;
             font-size: 1.05rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .option-number {
+            font-weight: 600;
+            color: var(--dark-color);
         }
 
         .nav-title {
@@ -340,13 +348,14 @@
             text-align: right;
         }
          .review-option {
-             display: flex;
+            display: flex;
             align-items: center;
             background-color: #f8f9fa;
             border: 1px solid #e9ecef;
             border-radius: 8px;
             padding: 10px 15px;
             margin-bottom: 8px;
+            gap: 10px;
         }
         .review-option.user-incorrect {
             background-color: #f8d7da !important;
@@ -416,6 +425,7 @@
         <div id="start-container">
             <h2>به آزمون جامع CNC خوش آمدید</h2>
             <p>لطفاً تعداد سوالات مورد نظر خود را وارد کنید. برای هر سوال به طور میانگین ۱ دقیقه زمان خواهید داشت.</p>
+            <p style="margin-top: 15px;">تعداد کل سوالات موجود: <strong id="total-available-questions">0</strong></p>
             <div>
                 <input type="number" id="num-questions-input" value="20" min="1">
             </div>
@@ -499,6 +509,7 @@
         const reviewContent = document.getElementById('review-content');
         const reviewAllBtn = document.getElementById('review-all-btn');
         const reviewMarkedBtn = document.getElementById('review-marked-btn');
+        const totalAvailableQuestionsSpan = document.getElementById('total-available-questions');
 
         // --- Global State ---
         let currentQuestionIndex = 0;
@@ -510,10 +521,28 @@
         const allQuestions = typeof questions !== 'undefined' ? questions : [];
 
         // --- Initialization ---
-        allQuestions.forEach(q => {
-            if (!q.category) {
-                const cncKeywords = ['cnc', 'g-code', 'm-code', 'g01', 'g00', 'g96', 'اسپیندل', 'کنترل عددی', 'محور', 'فرمان', 'سیکل', 'm03', 'm05'];
-                q.category = cncKeywords.some(keyword => q.question.toLowerCase().includes(keyword)) ? 'cnc' : 'other';
+        document.addEventListener('DOMContentLoaded', () => {
+            if (allQuestions.length > 0) {
+                // Categorize questions
+                allQuestions.forEach(q => {
+                    if (!q.category) {
+                        const cncKeywords = ['cnc', 'g-code', 'm-code', 'g01', 'g00', 'g96', 'اسپیندل', 'کنترل عددی', 'محور', 'فرمان', 'سیکل', 'm03', 'm05'];
+                        q.category = cncKeywords.some(keyword => q.question.toLowerCase().includes(keyword)) ? 'cnc' : 'other';
+                    }
+                });
+                
+                // Update UI on start page
+                if (totalAvailableQuestionsSpan) {
+                    totalAvailableQuestionsSpan.textContent = allQuestions.length;
+                }
+                if (numQuestionsInput) {
+                    numQuestionsInput.max = allQuestions.length;
+                }
+            } else {
+                 if (totalAvailableQuestionsSpan) {
+                    totalAvailableQuestionsSpan.textContent = "N/A";
+                    totalAvailableQuestionsSpan.style.color = 'red';
+                }
             }
         });
 
@@ -539,32 +568,43 @@
                 alert(`لطفا عددی بین 1 تا ${allQuestions.length} وارد کنید.`);
                 return;
             }
-
-            selectRandomQuestions(requestedCount);
+            
+            const shouldShuffle = requestedCount !== allQuestions.length;
+            selectQuizQuestions(requestedCount, shouldShuffle);
+            
             startQuiz();
         }
 
-        function selectRandomQuestions(count) {
-            const cncQuestions = allQuestions.filter(q => q.category === 'cnc');
-            const otherQuestions = allQuestions.filter(q => q.category === 'other');
-            let numCnc = Math.ceil(count * 0.7);
-            let numOther = count - numCnc;
-            if (numCnc > cncQuestions.length) {
-                numCnc = cncQuestions.length;
-                numOther = count - numCnc;
+        function selectQuizQuestions(count, shuffle) {
+            if (!shuffle) {
+                activeQuizQuestions = [...allQuestions];
+            } else {
+                const cncQuestions = allQuestions.filter(q => q.category === 'cnc');
+                const otherQuestions = allQuestions.filter(q => q.category === 'other');
+                let numCnc = Math.ceil(count * 0.7);
+                let numOther = count - numCnc;
+
+                if (numCnc > cncQuestions.length) {
+                    numCnc = cncQuestions.length;
+                    numOther = count - numCnc;
+                }
+                if (numOther < 0) numOther = 0;
+
+                if (numOther > otherQuestions.length) {
+                    numOther = otherQuestions.length;
+                    if (count > allQuestions.length) count = allQuestions.length;
+                    numCnc = count - numOther;
+                }
+                if (numCnc < 0) numCnc = 0;
+
+                const shuffledCnc = shuffleArray([...cncQuestions]);
+                const shuffledOther = shuffleArray([...otherQuestions]);
+                const selectedCnc = shuffledCnc.slice(0, numCnc);
+                const selectedOther = shuffledOther.slice(0, numOther);
+                
+                activeQuizQuestions = shuffleArray([...selectedCnc, ...selectedOther]);
             }
-            if (numOther < 0) numOther = 0;
-            if (numOther > otherQuestions.length) {
-                numOther = otherQuestions.length;
-                if (count > allQuestions.length) count = allQuestions.length;
-                numCnc = count - numOther;
-            }
-            if (numCnc < 0) numCnc = 0;
-            const shuffledCnc = shuffleArray([...cncQuestions]);
-            const shuffledOther = shuffleArray([...otherQuestions]);
-            const selectedCnc = shuffledCnc.slice(0, numCnc);
-            const selectedOther = shuffledOther.slice(0, numOther);
-            activeQuizQuestions = shuffleArray([...selectedCnc, ...selectedOther]);
+            
             userAnswers = new Array(activeQuizQuestions.length).fill(null);
             markedQuestions = new Array(activeQuizQuestions.length).fill(false);
         }
@@ -599,7 +639,6 @@
             let optionsHTML = '';
             question.options.forEach((option, optIndex) => {
                 let optionContent = '';
-                // Check if option is an object (for text + image) or a string (for text only)
                 if (typeof option === 'object' && option !== null) {
                     optionContent = `<div class="option-content">`;
                     if (option.image) {
@@ -613,10 +652,15 @@
                     optionContent = `<span>${option}</span>`;
                 }
 
+                const number = optIndex + 1;
+
                 optionsHTML += `
                     <div class="option ${userAnswers[index] === optIndex ? 'selected' : ''}" data-q-index="${index}" data-opt-index="${optIndex}">
                         <input type="radio" id="q${index}-opt${optIndex}" name="q${index}" ${userAnswers[index] === optIndex ? 'checked' : ''}>
-                        <label for="q${index}-opt${optIndex}">${optionContent}</label>
+                        <label for="q${index}-opt${optIndex}">
+                            <span class="option-number">${number})</span>
+                            ${optionContent}
+                        </label>
                     </div>`;
             });
 
@@ -800,7 +844,12 @@
                         optionContent = `<span>${opt}</span>`;
                     }
                     
-                    optionsReviewHTML += `<div class="${classStr}">${optionContent}</div>`;
+                    const number = optIndex + 1;
+                    optionsReviewHTML += `
+                        <div class="${classStr}">
+                            <span class="option-number">${number})</span>
+                            ${optionContent}
+                        </div>`;
                 });
 
                 reviewHTML += `
@@ -823,4 +872,3 @@
     </script>
 </body>
 </html>
-
