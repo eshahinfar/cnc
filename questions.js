@@ -39,7 +39,7 @@
         {"question":"در ترسیم Poly line چند خطی کدام یک از ویژگیهای زیر نیست؟","options":["قابلیت ترسیم دو خط موازی در کنار هم","امکان استفاده همزمان از خط و کمان","قابلیت تغییر ضخامت اجزا در طی ترسیم","پیوستگی اجزای آن به طور متوالی"],"answer":0},
         {"question":"جهت ترسیم کمان با داشتن سه نقطه از کمان از کدام روش استفاده میشود؟","options":["C,R","2P","3P","TTR"],"answer":2},
         {"question":"جهت ترسیم حلقه در اتوکد از کدام دستور استفاده میشود؟","options":["Erase","Rectangle","Point","Donut"],"answer":3},
-        {"question":"بهترین روش برای ترسیم شکل مقابل کدام است؟","options":["Line,Arc","Line,Fillet","Polygon","Line,chamfer"],"answer":1},
+        {"question":"بهترین روش برای ترسیم شکل مقابل کدام است؟","options":["Line,Arc","Line,Fillet","Polygon","Line,chamfer"],"answer":1,"image":"images/41.png"},
         {"question":"برای تقسیم یک پاره خط به قسمتهای مساوی، از کدام دستور استفاده میگردد؟","options":["Divide","Measure","Break","Trim"],"answer":0},
         {"question":"برای ترسیم چند ضلعی منتظم محیط بر دایره از کدام گزینه در دستور Polygon باید استفاده نمود؟","options":["Edge","Din scribed","Inscribed","Circum scribed"],"answer":3},
         {"question":"با کدام فرمان میتوان برای مکانهای مختلف رسم توضیحاتی اضافه کرد؟","options":["Line","Mtext","Measure","Divide"],"answer":1},
