@@ -340,7 +340,7 @@
         {"question":"با فعال بودن حالت Increments (هندویل) با زدن دکمه ۱۰۰۰ میکرون سرعت پیشروی ابزار چقدر میباشد؟","options":["۰/۱ میلی متر","۱ میلی متر","۰/۰۱ میلی متر","۰/۰۰۱ میلی متر"],"answer":1},
         {"question":"علامت ضربدر مقابل نام برنامه ها در محیط PROGRAM توسط چه کلیدی فعال و یا غیرفعال می شود.","options":["INPUT","ROGRAM SELECTION","ALTER ENABLE","SIMULATE"],"answer":2},
         {"question":"اگر پارامتر P در خط اجرای زیر برنامه تعریف نشود چه تأثیری در اجرای زیر برنامه دارد؟","options":["زیر برنامه اجرا نخواهد شد.","زیر برنامه فقط یک بار اجرا خواهد شد.","برنامه اصلی در نقطه مورد نظر قطع خواهد شد.","زیر برنامه به صورت مداوم تکرار خواهد شد."],"answer":1},
-        {"question":"کلید چرخان (سلکتور) نشان داده شده در شکل مربوط به چه عملکردی است؟","options":["کنترل درصد سرعت دورانی","کنترل درصد سرعت سریع","کنترل درصد سرعت پیشروی","چرخ دستی (هندویل)"],"answer":2},
+        {"question":"کلید چرخان (سلکتور) نشان داده شده در شکل مربوط به چه عملکردی است؟","options":["کنترل درصد سرعت دورانی","کنترل درصد سرعت سریع","کنترل درصد سرعت پیشروی","چرخ دستی (هندویل)"],"answer":2,"image":"./images/342.png"},
         {"question":"برای تعریف مرکز قطب در سیستم قطبی نسبت به صفر قطعه کار کدام کد کاربرد دارد؟","options":["۱۱۲","۱۱۱","۱۱۰","۱۱۳"],"answer":1},
         {"question":"برای انتخاب برنامه موجود در حافظه ماشین کدام یک از کلیدهای نرم افزاری زیر به کار میرود؟","options":["program selection","Renumber","Reset","Alter enable"],"answer":0},
         {"question":"اگر خواسته باشیم عمل آیینه کردن نسبت به محور X باشد، کدام گزینه صحیح میباشد؟","options":["Mirror xo","Mirror yo","Mirror zo","Mirror xoyo"],"answer":0},
@@ -350,8 +350,8 @@
         {"question":"به دو فرمان خود نگهداری که کنسل کننده یکدیگر نیز باشند .................. گفته میشود؟","options":["حاکم","هم گروه","modal","non modal"],"answer":1},
         {"question":"با زدن کدام دکمه، روند اجرای برنامه متوقف شده و قابل ادامه دادن میباشد؟","options":["cycle start","cycle stop","Reset","Del"],"answer":1},
         {"question":"کلید وضعیت دستی کدام است؟","options":["MDA","JOG","single block","Teach in"],"answer":1},
-        {"question":"برنامه صحیح مسیر نهایی قطعه نشان داده شده در شکل چگونه است؟","options":["<span dir=\"ltr\" style=\"display: block; width:100%; text-align: left;\">N1 G0 X85 Z2<br>N2 G1 Z-62.5<br>RND=10 F0.2<br>N3 RND=10<br>N4 G1 X125<br>G1 Z-120</span>","<span dir=\"ltr\" style=\"display: block; width:100%; text-align: left;\">N1 G0 X85 Z2<br>N2 G1 Z-62.5 F0.2<br>N3 G1 X125<br>N4 G1 Z-120<br>N5 G0 X150 Z150</span>","<span dir=\"ltr\" style=\"display: block; width:100%; text-align: left;\">N1 G0 X85 Z2<br>N2 G1 Z-52.5<br>RND=10<br>N3 G1 X125<br>N4 G1 Z-120<br>N5 X150 Z150</span>","<span dir=\"ltr\" style=\"display: block; width:100%; text-align: left;\">N1 G0 X85 Z2<br>N2 G1 Z-52.5 F0.2<br>N3 G2 X125 Z-62.5<br>CR=10<br>N4 G1 Z-120<br>N5 G0 X150 Z150</span>"],"answer":0},
-        {"question":"در تیپ ماشین کاری مربوط به سیکل شیار تراش مطابق شکل، اعداد ۶ و ۸ مربوط به چه حالتی از شیار تراشی میباشد؟","options":["شیار تراشی خارجی","شیار تراشی داخلی","شیار تراش پیشانی از راست","شیار تراش پیشانی از چپ"],"answer":2},
+        {"question":"برنامه صحیح مسیر نهایی قطعه نشان داده شده در شکل چگونه است؟","options":["<span dir=\"ltr\" style=\"display: block; width:100%; text-align: left;\">N1 G0 X85 Z2<br>N2 G1 Z-62.5<br>RND=10 F0.2<br>N3 RND=10<br>N4 G1 X125<br>G1 Z-120</span>","<span dir=\"ltr\" style=\"display: block; width:100%; text-align: left;\">N1 G0 X85 Z2<br>N2 G1 Z-62.5 F0.2<br>N3 G1 X125<br>N4 G1 Z-120<br>N5 G0 X150 Z150</span>","<span dir=\"ltr\" style=\"display: block; width:100%; text-align: left;\">N1 G0 X85 Z2<br>N2 G1 Z-52.5<br>RND=10<br>N3 G1 X125<br>N4 G1 Z-120<br>N5 X150 Z150</span>","<span dir=\"ltr\" style=\"display: block; width:100%; text-align: left;\">N1 G0 X85 Z2<br>N2 G1 Z-52.5 F0.2<br>N3 G2 X125 Z-62.5<br>CR=10<br>N4 G1 Z-120<br>N5 G0 X150 Z150</span>"],"answer":0,"image":"./images/352.png"},
+        {"question":"در تیپ ماشین کاری مربوط به سیکل شیار تراش مطابق شکل، اعداد ۶ و ۸ مربوط به چه حالتی از شیار تراشی میباشد؟","options":["شیار تراشی خارجی","شیار تراشی داخلی","شیار تراش پیشانی از راست","شیار تراش پیشانی از چپ"],"answer":2,"image":"./images/353.png"},
         {"question":"در برنامه جهت پرش به عقب برنامه و تکرار قسمتی از برنامه از چه فرمانی استفاده می گردد؟","options":["BACKTO","GOTOB","GOTOF","FORWARD"],"answer":1},
         {"question":"در برنامه زیر تعداد تکرار خطوط N15 تا N30 چند بار خواهد بود؟ <span dir=\"ltr\" style=\"display: block; width:100%; text-align: left;\">N5...<br>N10...<br>N15...<br>R1=0<br>AA:<br>N20...<br>N25...<br>N30...<br>N35 R1=R1+1<br>N40 IF R1<5 GOTO AA<br>N45 G00 X150 Z150<br>N50 M30</span>","options":["یک بار","سه بار","چهار بار","دو بار"],"answer":1},
         {"question":"HAND WHEEL در کدام مد فعال میشود؟","options":["MDA","JOG","AUTO","singleblock"],"answer":1},
@@ -417,6 +417,7 @@
         {"question":"کارگرانی که کارشان حمل قطعات چدنی، قطعات بزرگ چوبی یا جابه جا کردن بارهای فلزی سنگین است برای حفاظ پاها باید از کفشهای:","options":["پنجه فولادی استفاده کنند.","که فاقد میخ باشد استفاده کنند.","که از لاستیک یا چرم مخصوص باشد استفاده کنند.","که در آنها فلز بکار رفته باشد استفاده نکنند."],"answer":0},
         {"question":"کدام مورد زیر جزء ویژگیهای لباس کار به شمار نمی رود؟","options":["مناسب با بدن و حتی الامکان چسبان باشد.","هیچ قسمت آن آزاد نباشد و یا باز و پاره نباشد.","حداقل دکمه را داشته باشد.","کمر آن همیشه بسته و حتی الامکان جیبهای آن کوچک باشد."],"answer":2}
     ];
+
 
 
 
