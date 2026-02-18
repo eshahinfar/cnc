@@ -1,4 +1,5 @@
-    const questions = [
+    window.QUESTION_BANKS = window.QUESTION_BANKS || {};
+window.QUESTION_BANKS.questions = [
         {"question":"مهم ترین جزء سخت افزاری یک رایانه کدام است؟","options":["حافظه","ریز پردازنده","صفحه نمایش","هارد دیسک"],"answer":1},
         {"question":"cpu به واحد ............... گفته میشود","options":["حافظه","پردازشگر مرکزی","کنترل","محاسبه و منطق"],"answer":1},
         {"question":"حافظه .................. از نوع حافظه فقط خواندنی است.","options":["Ram","Rom","flash"],"answer":1},

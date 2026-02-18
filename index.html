@@ -102,6 +102,43 @@
             margin-top: 20px; 
         }
 
+        #question-source-selector {
+            display: flex;
+            gap: 12px;
+            width: 100%;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .source-option {
+            position: relative;
+            flex: 1;
+            min-width: 220px;
+        }
+
+        .source-option input[type="radio"] {
+            position: absolute;
+            opacity: 0;
+        }
+
+        .source-option label {
+            display: block;
+            padding: 12px 16px;
+            border: 2px solid #dce5ec;
+            border-radius: 10px;
+            background-color: #f9fbfd;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .source-option input[type="radio"]:checked + label {
+            border-color: var(--primary-color);
+            background-color: #e9f5ff;
+            color: var(--secondary-color);
+            box-shadow: 0 4px 10px rgba(52, 152, 219, 0.15);
+        }
+
         #category-checkboxes { 
             display: flex; 
             justify-content: center; 
@@ -389,6 +426,16 @@
             <p class="intro-text">برای شروع، دسته‌بندی(ها) و تنظیمات آزمون را مشخص کرده و روی دکمه "شروع آزمون" کلیک کنید.</p>
             
             <div class="start-options">
+                <div id="question-source-selector">
+                    <div class="source-option">
+                        <input type="radio" id="source-questions" name="question-source" value="questions">
+                        <label for="source-questions">آزمون تراشکاری CNC</label>
+                    </div>
+                    <div class="source-option">
+                        <input type="radio" id="source-programming" name="question-source" value="programming">
+                        <label for="source-programming">برنامه نویسی CNC</label>
+                    </div>
+                </div>
                 <div id="category-checkboxes">
                     <!-- Checkboxes will be populated by JS -->
                 </div>
@@ -465,6 +512,7 @@
     </button>
     
     <script src="questions.js"></script>
+    <script src="CNC Programming.js"></script>
     <script>
         // --- DOM Elements ---
         const startContainer = document.getElementById('start-container');
@@ -494,6 +542,9 @@
         const reviewMarkedBtn = document.getElementById('review-marked-btn');
         const scrollTopBtn = document.getElementById('scroll-top-btn');
         const totalAvailableQuestionsSpan = document.getElementById('total-available-questions');
+        const sourceSelector = document.getElementById('question-source-selector');
+        const startTitle = startContainer.querySelector('h2');
+        const introText = startContainer.querySelector('.intro-text');
 
         // --- Global State ---
         let currentQuestionIndex = 0;
@@ -502,7 +553,19 @@
         let markedQuestions = [];
         let globalTimer;
         let examSubmitted = false;
-        const allQuestions = typeof questions !== 'undefined' ? questions : [];
+        const QUESTION_SOURCES = {
+            questions: {
+                title: 'آزمون تراشکاری CNC',
+                data: () => window.QUESTION_BANKS?.questions || []
+            },
+            programming: {
+                title: 'برنامه نویسی CNC',
+                data: () => window.QUESTION_BANKS?.programming || []
+            }
+        };
+
+        let selectedSource = '';
+        let allQuestions = [];
 
         const CATEGORIES = { 
             computer: 'عمومی کامپیوتر',
@@ -512,25 +575,67 @@
 
         // --- Initialization ---
         document.addEventListener('DOMContentLoaded', () => {
-            if (allQuestions.length === 0) {
-                totalAvailableQuestionsSpan.textContent = "N/A";
-                startContainer.querySelector('.intro-text').textContent = 'فایل سوالات (questions.js) بارگذاری نشده است. لطفاً فایل را بررسی کنید.';
-                startBtn.disabled = true;
-                startBtn.style.opacity = 0.5;
-                return;
-            }
-
-            allQuestions.forEach((q, index) => {
-                const questionNumber = index + 1;
-                if (questionNumber >= 1 && questionNumber <= 23) q.category = 'computer';
-                else if (questionNumber >= 24 && questionNumber <= 114) q.category = 'autocad';
-                else if (questionNumber >= 115 && questionNumber <= 417) q.category = 'cnc';
-                else q.category = 'other';
-            });
-
-            populateCheckboxes();
-            updateAvailableQuestionsCount();
+            startBtn.disabled = true;
+            startBtn.style.opacity = 0.5;
+            categoryCheckboxesContainer.innerHTML = '<p style="width:100%; text-align:center; color:#7f8c8d;">ابتدا بانک سوال را انتخاب کنید.</p>';
         });
+
+        sourceSelector.addEventListener('change', (event) => {
+            const nextSource = event.target.value;
+            if (!QUESTION_SOURCES[nextSource] || nextSource === selectedSource) return;
+            loadQuestionBank(nextSource);
+        });
+
+        function loadQuestionBank(sourceKey) {
+            const sourceConfig = QUESTION_SOURCES[sourceKey];
+            if (!sourceConfig) return;
+
+            startBtn.disabled = true;
+            startBtn.style.opacity = 0.5;
+
+            try {
+                const loadedQuestions = sourceConfig.data();
+
+                if (!Array.isArray(loadedQuestions) || loadedQuestions.length === 0) {
+                    throw new Error('بانک سوال خالی یا نامعتبر است.');
+                }
+
+                selectedSource = sourceKey;
+                allQuestions = loadedQuestions;
+                applyCategoriesBySource(sourceKey);
+
+                startTitle.textContent = sourceConfig.title;
+                introText.textContent = `برای شروع ${sourceConfig.title}، دسته‌بندی(ها) و تنظیمات آزمون را مشخص کرده و روی دکمه "شروع آزمون" کلیک کنید.`;
+                quizTitle.textContent = sourceConfig.title;
+
+                populateCheckboxes();
+                updateAvailableQuestionsCount();
+
+                startBtn.disabled = false;
+                startBtn.style.opacity = 1;
+            } catch (error) {
+                console.error(error);
+                selectedSource = '';
+                allQuestions = [];
+                totalAvailableQuestionsSpan.textContent = 'N/A';
+                categoryCheckboxesContainer.innerHTML = '<p style="width:100%; text-align:center; color:#c0392b;">بارگذاری سوالات ناموفق بود.</p>';
+                introText.textContent = `${error.message} لطفاً فایل مربوطه را بررسی کنید.`;
+            }
+        }
+
+        function applyCategoriesBySource(sourceKey) {
+            allQuestions.forEach((q, index) => {
+                if (sourceKey === 'questions') {
+                    const questionNumber = index + 1;
+                    if (questionNumber >= 1 && questionNumber <= 23) q.category = 'computer';
+                    else if (questionNumber >= 24 && questionNumber <= 114) q.category = 'autocad';
+                    else if (questionNumber >= 115 && questionNumber <= 417) q.category = 'cnc';
+                    else q.category = 'other';
+                } else {
+                    q.category = q.category || 'cnc';
+                }
+            });
+        }
 
         function populateCheckboxes() {
             categoryCheckboxesContainer.innerHTML = '';
@@ -659,8 +764,8 @@
             userAnswers = new Array(activeQuizQuestions.length).fill(null);
             markedQuestions = new Array(activeQuizQuestions.length).fill(false);
             
-            const title = selectedCats.length === 1 ? `آزمون ${CATEGORIES[selectedCats[0]]}` : 'آزمون ترکیبی';
-            quizTitle.textContent = title;
+            const sourceTitle = QUESTION_SOURCES[selectedSource]?.title || 'آزمون';
+            quizTitle.textContent = sourceTitle;
             
             startQuiz(timePerQuestion);
         }
