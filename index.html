@@ -313,6 +313,39 @@
         /* --- Results Page Styles --- */
         .results-page { display: none; padding: 40px; }
         #results-summary { text-align:center; padding-bottom: 20px; }
+
+        .results-badge {
+            margin: 20px auto 10px;
+            max-width: 540px;
+            padding: 14px 18px;
+            border-radius: 12px;
+            background: linear-gradient(135deg, #fff5da, #ffe7a3);
+            border: 1px solid #f5d67a;
+            font-weight: 700;
+            color: #8a5a00;
+            box-shadow: 0 8px 20px rgba(245, 191, 66, 0.2);
+        }
+
+        .results-badge.celebrate {
+            background: linear-gradient(135deg, #e9f9f1, #c7f4dd);
+            border-color: #8de0b6;
+            color: #16663f;
+        }
+
+        .results-badge.challenge {
+            background: linear-gradient(135deg, #fceeee, #fad6d6);
+            border-color: #f2b2b2;
+            color: #8c2f2f;
+        }
+
+        .confetti-strip {
+            margin: 8px 0 0;
+            font-size: 1.4rem;
+            line-height: 1;
+            letter-spacing: 6px;
+            min-height: 28px;
+            user-select: none;
+        }
         
         .results-toolbar {
             display: flex;
@@ -493,6 +526,8 @@
                 <h2>نتایج آزمون</h2>
                 <p id="score" style="font-size: 1.5rem;">نمره شما: <strong style="font-size: 1.8em;">0%</strong></p>
                 <p id="score-summary">شما به 0 سوال از 0 سوال پاسخ صحیح دادید.</p>
+                <div id="results-badge" class="results-badge">🎯 آماده‌ای که رکورد جدید بزنی؟</div>
+                <div id="confetti-strip" class="confetti-strip" aria-hidden="true"></div>
             </div>
             <div class="results-toolbar">
                 <div class="toolbar-group">
@@ -536,6 +571,8 @@
         const resultsPage = document.getElementById('results-page');
         const scoreElement = document.getElementById('score');
         const scoreSummary = document.getElementById('score-summary');
+        const resultsBadge = document.getElementById('results-badge');
+        const confettiStrip = document.getElementById('confetti-strip');
         const restartBtn = document.getElementById('restart-btn');
         const retryQuizBtn = document.getElementById('retry-quiz-btn');
         const savePdfBtn = document.getElementById('save-pdf-btn');
@@ -949,8 +986,43 @@
             const percentage = activeQuizQuestions.length > 0 ? ((score / activeQuizQuestions.length) * 100).toFixed(2) : 0;
             scoreElement.innerHTML = `نمره شما: <strong style="font-size: 1.8em;">${percentage}%</strong>`;
             scoreSummary.textContent = `شما به ${score} سوال از ${activeQuizQuestions.length} سوال پاسخ صحیح دادید.`;
+            updateFunResults(Number(percentage));
             
             displayReview('all');
+        }
+
+        function updateFunResults(percentage) {
+            const celebrationMessages = [
+                '🔥 عالی بود! همین فرمون رو نگه دار!',
+                '🏆 استاد CNC شدی! ادامه بده!',
+                '🎉 فوق‌العاده! این آزمون رو ترکوندی!'
+            ];
+            const midMessages = [
+                '💪 خوب بود! با یک مرور کوتاه، می‌تونی بالاتر بزنی.',
+                '🚀 پیشرفتت خیلی خوبه؛ یه دور دیگه بزن و رکورد بشکن!',
+                '✨ نزدیک حرفه‌ای شدنی! فقط کمی تمرین بیشتر.'
+            ];
+            const challengeMessages = [
+                '🛠️ شروع خوبیه! این بار برای گرم کردن بود 😄',
+                '📘 چند نکته رو مرور کن؛ دفعه بعد نتیجه می‌درخشه.',
+                '🎯 تمرین بعدی = جهش امتیاز! تو می‌تونی.'
+            ];
+
+            resultsBadge.className = 'results-badge';
+            confettiStrip.textContent = '';
+
+            if (percentage >= 80) {
+                resultsBadge.classList.add('celebrate');
+                resultsBadge.textContent = celebrationMessages[Math.floor(Math.random() * celebrationMessages.length)];
+                confettiStrip.textContent = '🎉 ✨ 🥳 🎊 ⭐';
+            } else if (percentage >= 50) {
+                resultsBadge.textContent = midMessages[Math.floor(Math.random() * midMessages.length)];
+                confettiStrip.textContent = '👏 🚀 ✨';
+            } else {
+                resultsBadge.classList.add('challenge');
+                resultsBadge.textContent = challengeMessages[Math.floor(Math.random() * challengeMessages.length)];
+                confettiStrip.textContent = '💡 📚 🎯';
+            }
         }
 
         function displayReview(filter = 'all') {
@@ -1066,6 +1138,4 @@
     </script>
 </body>
 </html>
-
-
 
