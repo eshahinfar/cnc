@@ -479,6 +479,7 @@
                         </div>
                         <button class="btn btn-warning" id="mark-btn"><i class="far fa-bookmark"></i> نشان‌گذاری</button>
                         <button class="btn btn-success" id="submit-btn"><i class="fas fa-paper-plane"></i> تحویل آزمون</button>
+                        <button class="btn btn-primary" id="retry-quiz-btn"><i class="fas fa-redo"></i> آزمون مجدد</button>
                     </div>
                     <h3 class="nav-title" style="margin-top: 20px;">پیمایش سوالات</h3>
                     <div class="question-buttons" id="question-buttons"></div>
@@ -495,7 +496,7 @@
             </div>
             <div class="results-toolbar">
                 <div class="toolbar-group">
-                    <button class="btn btn-primary" id="restart-btn"><i class="fas fa-redo"></i> آزمون جدید</button>
+                    <button class="btn btn-primary" id="restart-btn"><i class="fas fa-redo"></i> آزمون مجدد</button>
                     <button class="btn btn-success" id="save-pdf-btn"><i class="fas fa-file-pdf"></i> ذخیره PDF</button>
                 </div>
                 <div class="toolbar-group" id="review-filters">
@@ -536,6 +537,7 @@
         const scoreElement = document.getElementById('score');
         const scoreSummary = document.getElementById('score-summary');
         const restartBtn = document.getElementById('restart-btn');
+        const retryQuizBtn = document.getElementById('retry-quiz-btn');
         const savePdfBtn = document.getElementById('save-pdf-btn');
         const reviewContent = document.getElementById('review-content');
         const reviewAllBtn = document.getElementById('review-all-btn');
@@ -679,7 +681,8 @@
         nextBtn.addEventListener('click', handleNextButton);
         markBtn.addEventListener('click', toggleMarkQuestion);
         submitBtn.addEventListener('click', confirmAndSubmit);
-        restartBtn.addEventListener('click', () => location.reload());
+        restartBtn.addEventListener('click', retryExam);
+        retryQuizBtn.addEventListener('click', retryExam);
         reviewAllBtn.addEventListener('click', () => displayReview('all'));
         reviewMarkedBtn.addEventListener('click', () => displayReview('marked'));
         savePdfBtn.addEventListener('click', saveResultsAsPdf);
@@ -1049,6 +1052,10 @@
             });
         }
 
+        function retryExam() {
+            location.reload();
+        }
+
         function shuffleArray(array) {
             for (let i = array.length - 1; i > 0; i--) {
                 const j = Math.floor(Math.random() * (i + 1));
@@ -1059,7 +1066,6 @@
     </script>
 </body>
 </html>
-
 
 
 
