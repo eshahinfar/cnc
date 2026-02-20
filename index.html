@@ -1675,8 +1675,24 @@
             });
         }
 
+        function returnToStartPage() {
+            clearInterval(globalTimer);
+            isTimerPaused = false;
+            examSubmitted = false;
+            currentQuestionIndex = 0;
+
+            document.body.style.alignItems = 'center';
+            quizArea.style.display = 'none';
+            resultsPage.style.display = 'none';
+            startContainer.style.display = 'flex';
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
         function retryExam() {
-            location.reload();
+            const warningMessage = 'هشدار: با انتخاب «آزمون مجدد»، آزمون فعلی بسته شده و به صفحه اول بازمی‌گردید. آیا ادامه می‌دهید؟';
+            if (confirm(warningMessage)) {
+                returnToStartPage();
+            }
         }
 
         function retakeBasedOnFilters() {
