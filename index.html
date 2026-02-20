@@ -472,6 +472,10 @@
             <div class="start-icon"><i class="fas fa-tasks"></i></div>
             <h2>به آزمون جامع تراش CNC خوش آمدید</h2>
             <p class="intro-text">برای شروع، دسته‌بندی(ها) و تنظیمات آزمون را مشخص کرده و روی دکمه "شروع آزمون" کلیک کنید.</p>
+            <p style="font-size: 0.95em; color: #555; margin-bottom: 10px;">
+                <strong>میانبرهای آزمون:</strong>
+                برای انتخاب گزینه‌ها از کلیدهای <strong>1</strong> تا <strong>4</strong> استفاده کنید. برای رفتن به سوال <strong>بعدی</strong> کلید <strong>←</strong> و برای سوال <strong>قبلی</strong> کلید <strong>→</strong> را بزنید.
+            </p>
             
             <div class="start-options">
                 <div id="question-source-selector">
@@ -757,6 +761,7 @@
         });
         savePdfBtn.addEventListener('click', saveResultsAsPdf);
         scrollTopBtn.addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
+        document.addEventListener('keydown', handleQuizKeyboardShortcuts);
 
         window.addEventListener('scroll', () => {
             if (window.scrollY > 300) {
@@ -841,6 +846,43 @@
             quizTitle.textContent = sourceTitle;
             
             startQuiz(timePerQuestion);
+        }
+
+        function handleQuizKeyboardShortcuts(event) {
+            if (
+                examSubmitted ||
+                quizArea.style.display !== 'block' ||
+                startContainer.style.display !== 'none' ||
+                resultsPage.style.display === 'block'
+            ) {
+                return;
+            }
+
+            const targetTag = event.target.tagName;
+            if (targetTag === 'INPUT' || targetTag === 'TEXTAREA' || event.target.isContentEditable) {
+                return;
+            }
+
+            if (event.key >= '1' && event.key <= '4') {
+                const optionIndex = Number(event.key) - 1;
+                const optionElement = questionsSection.querySelector(
+                    `.option[data-q-index="${currentQuestionIndex}"][data-opt-index="${optionIndex}"]`
+                );
+
+                if (optionElement) {
+                    event.preventDefault();
+                    optionElement.click();
+                }
+                return;
+            }
+
+            if (event.key === 'ArrowLeft') {
+                event.preventDefault();
+                navigate(1);
+            } else if (event.key === 'ArrowRight') {
+                event.preventDefault();
+                navigate(-1);
+            }
         }
         
         function startQuiz(timePerQuestion) {
