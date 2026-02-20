@@ -310,6 +310,19 @@
             border-color: var(--primary-color);
         }
 
+        .setting-item input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            accent-color: var(--primary-color);
+            cursor: pointer;
+        }
+
+        .setting-item input[type="number"]:disabled {
+            background-color: #ecf0f1;
+            color: #7f8c8d;
+            cursor: not-allowed;
+        }
+
         #start-btn {
             font-size: 1.2rem;
             font-weight: 700;
@@ -566,6 +579,10 @@
                         <label for="time-per-question-input">زمان هر سوال (دقیقه):</label>
                         <input type="number" id="time-per-question-input" value="1" min="0.5" step="0.5">
                     </div>
+                    <div class="setting-item">
+                        <input type="checkbox" id="no-time-limit-input">
+                        <label for="no-time-limit-input">بدون محدودیت زمانی</label>
+                    </div>
                  </div>
                 <p style="font-size: 0.9em; color: #555;">(مجموع سوالات موجود: <strong id="total-available-questions">0</strong>)</p>
                 <div class="platform-instructions">
@@ -662,6 +679,7 @@
         const startBtn = document.getElementById('start-btn');
         const numQuestionsInput = document.getElementById('num-questions-input');
         const timePerQuestionInput = document.getElementById('time-per-question-input');
+        const noTimeLimitInput = document.getElementById('no-time-limit-input');
         const categoryCheckboxesContainer = document.getElementById('category-checkboxes');
         const quizArea = document.getElementById('quiz-area');
         const quizTitle = document.getElementById('quiz-title');
@@ -702,6 +720,7 @@
         let globalTimer;
         let examSubmitted = false;
         let currentTimePerQuestion = 1;
+        let isNoTimeLimit = false;
         const QUESTION_SOURCES = {
             questions: {
                 title: 'آزمون تراشکاری CNC',
@@ -823,6 +842,7 @@
         };
         numQuestionsInput.addEventListener('keydown', handleEnterKey);
         timePerQuestionInput.addEventListener('keydown', handleEnterKey);
+        noTimeLimitInput.addEventListener('change', toggleTimeLimitInputState);
 
         prevBtn.addEventListener('click', () => navigate(-1));
         nextBtn.addEventListener('click', handleNextButton);
@@ -905,10 +925,15 @@
                 return;
             }
 
-            const timePerQuestion = parseFloat(timePerQuestionInput.value);
-            if (isNaN(timePerQuestion) || timePerQuestion <= 0) {
-                alert("زمان وارد شده برای هر سوال نامعتبر است. لطفاً یک عدد مثبت وارد کنید.");
-                return;
+            const noTimeLimit = noTimeLimitInput.checked;
+            let timePerQuestion = null;
+
+            if (!noTimeLimit) {
+                timePerQuestion = parseFloat(timePerQuestionInput.value);
+                if (isNaN(timePerQuestion) || timePerQuestion <= 0) {
+                    alert("زمان وارد شده برای هر سوال نامعتبر است. لطفاً یک عدد مثبت وارد کنید.");
+                    return;
+                }
             }
             
             const shouldShuffle = requestedCount < sourceQuestions.length;
@@ -920,7 +945,12 @@
             const sourceTitle = QUESTION_SOURCES[selectedSource]?.title || 'آزمون';
             quizTitle.textContent = sourceTitle;
             
-            startQuiz(timePerQuestion);
+            startQuiz(timePerQuestion, noTimeLimit);
+        }
+
+        function toggleTimeLimitInputState() {
+            const isUnlimited = noTimeLimitInput.checked;
+            timePerQuestionInput.disabled = isUnlimited;
         }
 
         function handleQuizKeyboardShortcuts(event) {
@@ -960,17 +990,24 @@
             }
         }
         
-        function startQuiz(timePerQuestion) {
+        function startQuiz(timePerQuestion, noTimeLimit = false) {
             examSubmitted = false;
             currentTimePerQuestion = timePerQuestion;
+            isNoTimeLimit = noTimeLimit;
             currentQuestionIndex = 0;
             document.body.style.alignItems = 'flex-start';
             startContainer.style.display = 'none';
             resultsPage.style.display = 'none';
             quizArea.style.display = 'block';
             
-            const totalTime = activeQuizQuestions.length * timePerQuestion * 60;
-            startGlobalTimer(totalTime);
+            if (noTimeLimit) {
+                timerDisplay.textContent = 'بدون محدودیت';
+                timerDisplay.parentElement.style.background = 'var(--success-color)';
+                clearInterval(globalTimer);
+            } else {
+                const totalTime = activeQuizQuestions.length * timePerQuestion * 60;
+                startGlobalTimer(totalTime);
+            }
             renderUI();
         }
 
@@ -1317,7 +1354,7 @@
             userAnswers = new Array(activeQuizQuestions.length).fill(null);
             markedQuestions = new Array(activeQuizQuestions.length).fill(false);
 
-            startQuiz(currentTimePerQuestion);
+            startQuiz(currentTimePerQuestion, isNoTimeLimit);
         }
 
         function shuffleArray(array) {
