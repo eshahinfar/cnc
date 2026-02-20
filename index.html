@@ -27,7 +27,6 @@
             --success-color: #2ecc71;
             --warning-color: #f39c12;
             --dark-color: #34495e;
-            --brand-indigo: #3f51b5;
             --brand-purple: #7b61ff;
             --text-muted: #6b7785;
             --shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
@@ -81,19 +80,6 @@
             border-image: linear-gradient(to left, var(--brand-purple), var(--primary-color)) 1;
         }
 
-        .hero-badge {
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            background: rgba(63, 81, 181, 0.1);
-            color: var(--brand-indigo);
-            border: 1px solid rgba(63, 81, 181, 0.2);
-            border-radius: 999px;
-            padding: 8px 16px;
-            font-size: 0.92rem;
-            font-weight: 700;
-        }
-
         .start-hero {
             width: 100%;
             max-width: 880px;
@@ -131,36 +117,33 @@
             margin-bottom: 0;
         }
 
-        .start-highlights {
+        .platform-instructions {
             width: 100%;
-            display: grid;
-            grid-template-columns: repeat(3, minmax(0, 1fr));
-            gap: 12px;
             max-width: 880px;
-        }
-
-        .highlight-card {
             text-align: right;
+            background: #ffffff;
+            border: 1px solid #e4ebf6;
             border-radius: 14px;
-            padding: 14px 16px;
-            background-color: #ffffff;
-            border: 1px solid #e7edf7;
-            box-shadow: 0 8px 14px rgba(44, 62, 80, 0.06);
-        }
-
-        .highlight-card i {
-            color: var(--primary-color);
-            margin-left: 8px;
-        }
-
-        .highlight-card strong {
-            font-size: 0.95rem;
+            padding: 16px 18px;
+            box-shadow: 0 8px 18px rgba(44, 62, 80, 0.08);
             color: var(--secondary-color);
         }
 
-        .highlight-card p {
-            font-size: 0.88rem;
+        .platform-instructions h3 {
+            font-size: 1rem;
+            margin-bottom: 8px;
+        }
+
+        .platform-instructions ul {
+            margin: 0;
+            padding-right: 20px;
+            display: grid;
+            gap: 6px;
+        }
+
+        .platform-instructions li {
             color: var(--text-muted);
+            font-size: 0.95rem;
         }
 
         .start-options { 
@@ -517,13 +500,10 @@
             .questions-section { order: 1; border-left: none; }
             .question-nav { order: 2; min-width: unset; width: 100%; border-right: none; border-top: 2px solid #ddd; }
             .logo { display: none; }
-            .start-highlights { grid-template-columns: repeat(2, minmax(0, 1fr)); }
         }
         @media (max-width: 768px) {
             #start-container { padding: 30px 24px; }
             .start-options { padding: 18px; }
-            .start-highlights { grid-template-columns: 1fr; }
-            .hero-badge { font-size: 0.85rem; }
             .results-toolbar {
                 flex-direction: column;
                 align-items: stretch;
@@ -553,32 +533,21 @@
     <div class="container">
         <!-- Start Page -->
         <div id="start-container">
-            <span class="hero-badge"><i class="fas fa-bolt"></i> نسخه جدید و بهینه برای موبایل، تبلت و دسکتاپ</span>
             <div class="start-hero">
                 <div class="start-icon"><i class="fas fa-tasks"></i></div>
                 <h2>به آزمون جامع تراش CNC خوش آمدید</h2>
-                <p class="intro-text">یک تجربه مدرن، حرفه‌ای و کاربرپسند برای تمرین سریع‌تر. منبع سوالات، دسته‌بندی‌ها و تنظیمات آزمون را انتخاب کنید و با رابط جدید، تمرین را لذت‌بخش‌تر پیش ببرید.</p>
+                <p class="intro-text">برای شروع آزمون، ابتدا منبع سوالات، دسته‌بندی‌ها، تعداد سوال و زمان هر سوال را تنظیم کنید و سپس روی «شروع آزمون» بزنید.</p>
             </div>
 
-            <div class="start-highlights">
-                <div class="highlight-card">
-                    <strong><i class="fas fa-layer-group"></i>چیدمان واضح و مرتب</strong>
-                    <p>همه تنظیمات مهم آزمون در یک بخش تمیز و قابل فهم قرار گرفته‌اند.</p>
-                </div>
-                <div class="highlight-card">
-                    <strong><i class="fas fa-mobile-screen-button"></i>ریسپانسیو واقعی</strong>
-                    <p>نمایش حرفه‌ای در صفحه‌نمایش موبایل، تبلت و دسکتاپ بدون به‌هم‌ریختگی.</p>
-                </div>
-                <div class="highlight-card">
-                    <strong><i class="fas fa-face-smile"></i>آموزش با حس خوب</strong>
-                    <p>ظاهر پویا و انرژی‌بخش که یادگیری را جذاب‌تر و تمرین را سرگرم‌کننده‌تر می‌کند.</p>
-                </div>
+            <div class="platform-instructions">
+                <h3><i class="fas fa-circle-info"></i> راهنمای استفاده از پلتفرم آزمون</h3>
+                <ul>
+                    <li>پس از انتخاب تنظیمات، با دکمه «شروع آزمون» وارد سوالات شوید.</li>
+                    <li>برای پاسخ‌دهی سریع می‌توانید از کلیدهای <strong>1</strong> تا <strong>4</strong> استفاده کنید.</li>
+                    <li>برای رفتن به سوال <strong>بعدی</strong> کلید <strong>←</strong> و برای سوال <strong>قبلی</strong> کلید <strong>→</strong> را بزنید.</li>
+                    <li>با دکمه «نشان‌گذاری» سوالات مهم را علامت بزنید و در پایان «تحویل آزمون» را انتخاب کنید.</li>
+                </ul>
             </div>
-
-            <p style="font-size: 0.95em; color: #555; margin-bottom: 0; max-width: 880px;">
-                <strong>میانبرهای آزمون:</strong>
-                برای انتخاب گزینه‌ها از کلیدهای <strong>1</strong> تا <strong>4</strong> استفاده کنید. برای رفتن به سوال <strong>بعدی</strong> کلید <strong>←</strong> و برای سوال <strong>قبلی</strong> کلید <strong>→</strong> را بزنید.
-            </p>
             
             <div class="start-options">
                 <div id="question-source-selector">
