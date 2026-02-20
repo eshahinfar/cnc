@@ -216,6 +216,37 @@
             box-shadow: 0 6px 14px rgba(83, 96, 226, 0.2);
         }
 
+        .selection-mode-wrapper {
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            align-items: stretch;
+        }
+
+        .selection-mode-options {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .selection-mode-options label {
+            border: 1px solid #dce7f7;
+            border-radius: 10px;
+            padding: 8px 12px;
+            font-weight: 600;
+            background: #f7faff;
+            cursor: pointer;
+        }
+
+        #range-settings {
+            display: none;
+            width: 100%;
+            gap: 12px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
         #category-checkboxes { 
             display: flex; 
             justify-content: center; 
@@ -641,9 +672,32 @@
                     <!-- Checkboxes will be populated by JS -->
                 </div>
                  <div id="settings-container">
-                    <div class="setting-item">
+                    <div class="selection-mode-wrapper">
+                        <label>نحوه انتخاب سوالات:</label>
+                        <div class="selection-mode-options">
+                            <label for="selection-mode-count">
+                                <input type="radio" id="selection-mode-count" name="question-selection-mode" value="count" checked>
+                                بر اساس تعداد سوال
+                            </label>
+                            <label for="selection-mode-range">
+                                <input type="radio" id="selection-mode-range" name="question-selection-mode" value="range">
+                                بر اساس بازه شماره سوال
+                            </label>
+                        </div>
+                    </div>
+                    <div class="setting-item" id="count-settings">
                         <label for="num-questions-input">تعداد سوالات:</label>
                         <input type="number" id="num-questions-input" value="10" min="1">
+                    </div>
+                    <div id="range-settings">
+                        <div class="setting-item">
+                            <label for="range-start-input">از سوال:</label>
+                            <input type="number" id="range-start-input" value="1" min="1">
+                        </div>
+                        <div class="setting-item">
+                            <label for="range-end-input">تا سوال:</label>
+                            <input type="number" id="range-end-input" value="10" min="1">
+                        </div>
                     </div>
                     <div class="setting-item">
                         <label for="time-per-question-input">زمان هر سوال (دقیقه):</label>
@@ -758,6 +812,11 @@
         const startContainer = document.getElementById('start-container');
         const startBtn = document.getElementById('start-btn');
         const numQuestionsInput = document.getElementById('num-questions-input');
+        const rangeStartInput = document.getElementById('range-start-input');
+        const rangeEndInput = document.getElementById('range-end-input');
+        const countSettings = document.getElementById('count-settings');
+        const rangeSettings = document.getElementById('range-settings');
+        const selectionModeRadios = document.querySelectorAll('input[name="question-selection-mode"]');
         const timePerQuestionInput = document.getElementById('time-per-question-input');
         const noTimeLimitInput = document.getElementById('no-time-limit-input');
         const categoryCheckboxesContainer = document.getElementById('category-checkboxes');
@@ -832,6 +891,7 @@
             startBtn.disabled = true;
             startBtn.style.opacity = 0.5;
             categoryCheckboxesContainer.innerHTML = '<p style="width:100%; text-align:center; color:#7f8c8d;">ابتدا بانک سوال را انتخاب کنید.</p>';
+            toggleQuestionSelectionMode();
         });
 
         sourceSelector.addEventListener('change', (event) => {
@@ -927,8 +987,11 @@
             }
         };
         numQuestionsInput.addEventListener('keydown', handleEnterKey);
+        rangeStartInput.addEventListener('keydown', handleEnterKey);
+        rangeEndInput.addEventListener('keydown', handleEnterKey);
         timePerQuestionInput.addEventListener('keydown', handleEnterKey);
         noTimeLimitInput.addEventListener('change', toggleTimeLimitInputState);
+        selectionModeRadios.forEach(radio => radio.addEventListener('change', toggleQuestionSelectionMode));
 
         prevBtn.addEventListener('click', () => navigate(-1));
         nextBtn.addEventListener('click', handleNextButton);
@@ -984,6 +1047,8 @@
             
             totalAvailableQuestionsSpan.textContent = count;
             numQuestionsInput.max = count;
+            rangeStartInput.max = count;
+            rangeEndInput.max = count;
 
             if (parseInt(numQuestionsInput.value) > count || parseInt(numQuestionsInput.value) <= 0) {
                  if(count > 0 && (parseInt(numQuestionsInput.value) <= 0 || isNaN(parseInt(numQuestionsInput.value)))) {
@@ -994,6 +1059,39 @@
                     numQuestionsInput.value = 0;
                  }
             }
+
+            if (count > 0) {
+                if (isNaN(parseInt(rangeStartInput.value, 10)) || parseInt(rangeStartInput.value, 10) <= 0) {
+                    rangeStartInput.value = 1;
+                }
+                if (isNaN(parseInt(rangeEndInput.value, 10)) || parseInt(rangeEndInput.value, 10) <= 0) {
+                    rangeEndInput.value = count;
+                }
+                if (parseInt(rangeStartInput.value, 10) > count) {
+                    rangeStartInput.value = count;
+                }
+                if (parseInt(rangeEndInput.value, 10) > count) {
+                    rangeEndInput.value = count;
+                }
+                if (parseInt(rangeStartInput.value, 10) > parseInt(rangeEndInput.value, 10)) {
+                    rangeStartInput.value = 1;
+                    rangeEndInput.value = count;
+                }
+            } else {
+                rangeStartInput.value = 0;
+                rangeEndInput.value = 0;
+            }
+        }
+
+        function getQuestionSelectionMode() {
+            const selected = document.querySelector('input[name="question-selection-mode"]:checked');
+            return selected ? selected.value : 'count';
+        }
+
+        function toggleQuestionSelectionMode() {
+            const mode = getQuestionSelectionMode();
+            countSettings.style.display = mode === 'count' ? 'flex' : 'none';
+            rangeSettings.style.display = mode === 'range' ? 'flex' : 'none';
         }
 
         function generateAndStartQuiz() {
@@ -1009,11 +1107,7 @@
                 return;
             }
             
-            const requestedCount = parseInt(numQuestionsInput.value, 10);
-            if (isNaN(requestedCount) || requestedCount <= 0 || requestedCount > sourceQuestions.length) {
-                alert(`تعداد سوالات نامعتبر است. لطفاً عددی بین 1 تا ${sourceQuestions.length} وارد کنید.`);
-                return;
-            }
+            const selectionMode = getQuestionSelectionMode();
 
             const noTimeLimit = noTimeLimitInput.checked;
             let timePerQuestion = null;
@@ -1026,8 +1120,32 @@
                 }
             }
             
-            const shouldShuffle = requestedCount < sourceQuestions.length;
-            activeQuizQuestions = shouldShuffle ? shuffleArray([...sourceQuestions]).slice(0, requestedCount) : [...sourceQuestions];
+            if (selectionMode === 'range') {
+                const rangeStart = parseInt(rangeStartInput.value, 10);
+                const rangeEnd = parseInt(rangeEndInput.value, 10);
+
+                if (
+                    isNaN(rangeStart) ||
+                    isNaN(rangeEnd) ||
+                    rangeStart <= 0 ||
+                    rangeEnd <= 0 ||
+                    rangeStart > rangeEnd ||
+                    rangeEnd > sourceQuestions.length
+                ) {
+                    alert(`بازه شماره سوال نامعتبر است. لطفاً بازه‌ای بین 1 تا ${sourceQuestions.length} وارد کنید.`);
+                    return;
+                }
+
+                activeQuizQuestions = sourceQuestions.slice(rangeStart - 1, rangeEnd);
+            } else {
+                const requestedCount = parseInt(numQuestionsInput.value, 10);
+                if (isNaN(requestedCount) || requestedCount <= 0 || requestedCount > sourceQuestions.length) {
+                    alert(`تعداد سوالات نامعتبر است. لطفاً عددی بین 1 تا ${sourceQuestions.length} وارد کنید.`);
+                    return;
+                }
+
+                activeQuizQuestions = shuffleArray([...sourceQuestions]).slice(0, requestedCount);
+            }
 
             userAnswers = new Array(activeQuizQuestions.length).fill(null);
             markedQuestions = new Array(activeQuizQuestions.length).fill(false);
