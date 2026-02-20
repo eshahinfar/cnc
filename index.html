@@ -165,6 +165,20 @@
             box-shadow: 0 14px 30px rgba(37, 52, 71, 0.08);
         }
 
+        .import-results-row {
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .import-results-row small {
+            color: var(--text-muted);
+            font-size: 0.85rem;
+        }
+
         #question-source-selector {
             display: flex;
             gap: 12px;
@@ -653,6 +667,12 @@
             </div>
 
             <button class="btn" id="start-btn">شروع آزمون <i class="fas fa-arrow-left"></i></button>
+
+            <div class="import-results-row">
+                <button class="btn btn-primary" id="import-results-btn" type="button"><i class="fas fa-file-import"></i> ورود فایل نتایج</button>
+                <input type="file" id="import-results-input" accept="application/json,.json" hidden>
+                <small>برای نمایش دوباره صفحه نتایج، فایل خروجی را وارد کنید.</small>
+            </div>
         </div>
 
         <!-- Quiz Area (Initially Hidden) -->
@@ -703,6 +723,7 @@
                 <div class="toolbar-group">
                     <button class="btn btn-primary" id="restart-btn"><i class="fas fa-redo"></i> آزمون مجدد</button>
                     <button class="btn btn-warning" id="retake-filtered-btn"><i class="fas fa-filter"></i> آزمون براساس فیلتر</button>
+                    <button class="btn btn-primary" id="export-filtered-btn"><i class="fas fa-file-export"></i> خروجی نتایج فیلترشده</button>
                     <button class="btn btn-success" id="save-pdf-btn"><i class="fas fa-file-pdf"></i> ذخیره PDF</button>
                 </div>
                 <div class="toolbar-group" id="review-filters">
@@ -761,7 +782,10 @@
         const restartBtn = document.getElementById('restart-btn');
         const retakeFilteredBtn = document.getElementById('retake-filtered-btn');
         const retryQuizBtn = document.getElementById('retry-quiz-btn');
+        const exportFilteredBtn = document.getElementById('export-filtered-btn');
         const savePdfBtn = document.getElementById('save-pdf-btn');
+        const importResultsBtn = document.getElementById('import-results-btn');
+        const importResultsInput = document.getElementById('import-results-input');
         const reviewContent = document.getElementById('review-content');
         const filterWrong = document.getElementById('filter-wrong');
         const filterUnanswered = document.getElementById('filter-unanswered');
@@ -914,6 +938,9 @@
         restartBtn.addEventListener('click', retryExam);
         retakeFilteredBtn.addEventListener('click', retakeBasedOnFilters);
         retryQuizBtn.addEventListener('click', retryExam);
+        exportFilteredBtn.addEventListener('click', exportFilteredResults);
+        importResultsBtn.addEventListener('click', () => importResultsInput.click());
+        importResultsInput.addEventListener('change', importResultsFromFile);
         [filterWrong, filterUnanswered, filterCorrect].forEach(filterEl => {
             filterEl.addEventListener('change', () => displayReview());
         });
@@ -1258,12 +1285,19 @@
             
             const score = activeQuizQuestions.reduce((count, q, i) => count + (userAnswers[i] === q.answer ? 1 : 0), 0);
 
+            showResultsPage(score);
+        }
+
+        function showResultsPage(score) {
+            const totalQuestions = activeQuizQuestions.length;
+            const safeScore = Math.max(0, Math.min(score, totalQuestions));
+
             quizArea.style.display = 'none';
             resultsPage.style.display = 'block'; // Changed to block
             
-            const percentage = activeQuizQuestions.length > 0 ? ((score / activeQuizQuestions.length) * 100).toFixed(2) : 0;
+            const percentage = totalQuestions > 0 ? ((safeScore / totalQuestions) * 100).toFixed(2) : 0;
             scoreElement.innerHTML = `نمره شما: <strong style="font-size: 1.8em;">${percentage}%</strong>`;
-            scoreSummary.textContent = `شما به ${score} سوال از ${activeQuizQuestions.length} سوال پاسخ صحیح دادید.`;
+            scoreSummary.textContent = `شما به ${safeScore} سوال از ${totalQuestions} سوال پاسخ صحیح دادید.`;
             updateFunResults(Number(percentage));
             
             displayReview();
@@ -1310,15 +1344,7 @@
         }
 
         function displayReview() {
-            const activeFilters = {
-                wrong: filterWrong.checked,
-                unanswered: filterUnanswered.checked,
-                correct: filterCorrect.checked
-            };
-
-            const questionsToReview = activeQuizQuestions
-                .map((q, i) => ({ q, i, status: getReviewStatus(i, q) }))
-                .filter(item => activeFilters[item.status]);
+            const questionsToReview = getFilteredReviewItems();
 
             if (questionsToReview.length === 0) {
                 reviewContent.innerHTML = '<p style="text-align:center; padding: 20px; font-weight: 500;">هیچ سوالی با فیلترهای انتخاب‌شده پیدا نشد.</p>';
@@ -1361,6 +1387,114 @@
                         <div style="margin-top: 15px;">${optionsReviewHTML}</div>
                     </div>`;
             }).join('');
+        }
+
+        function getActiveReviewFilters() {
+            return {
+                wrong: filterWrong.checked,
+                unanswered: filterUnanswered.checked,
+                correct: filterCorrect.checked
+            };
+        }
+
+        function getFilteredReviewItems() {
+            const activeFilters = getActiveReviewFilters();
+            return activeQuizQuestions
+                .map((q, i) => ({ q, i, status: getReviewStatus(i, q) }))
+                .filter(item => activeFilters[item.status]);
+        }
+
+        function exportFilteredResults() {
+            const filteredItems = getFilteredReviewItems();
+            if (filteredItems.length === 0) {
+                alert('هیچ نتیجه‌ای با فیلترهای فعلی برای خروجی گرفتن وجود ندارد.');
+                return;
+            }
+
+            const exportPayload = {
+                version: 1,
+                exportedAt: new Date().toISOString(),
+                source: selectedSource,
+                quizTitle: quizTitle.textContent,
+                filters: getActiveReviewFilters(),
+                questions: filteredItems.map(item => item.q),
+                userAnswers: filteredItems.map(item => userAnswers[item.i]),
+                markedQuestions: filteredItems.map(item => markedQuestions[item.i])
+            };
+
+            const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
+            const blob = new Blob([JSON.stringify(exportPayload, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = `filtered-quiz-results-${timestamp}.json`;
+            document.body.appendChild(link);
+            link.click();
+            link.remove();
+            URL.revokeObjectURL(url);
+        }
+
+        function importResultsFromFile(event) {
+            const [file] = event.target.files || [];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = () => {
+                try {
+                    const importedData = JSON.parse(String(reader.result || '{}'));
+                    if (!importedData || !Array.isArray(importedData.questions) || !Array.isArray(importedData.userAnswers)) {
+                        throw new Error('ساختار فایل معتبر نیست.');
+                    }
+
+                    if (importedData.questions.length !== importedData.userAnswers.length) {
+                        throw new Error('تعداد سوالات و پاسخ‌ها با هم سازگار نیست.');
+                    }
+
+                    activeQuizQuestions = importedData.questions;
+                    userAnswers = importedData.userAnswers;
+                    markedQuestions = Array.isArray(importedData.markedQuestions)
+                        ? importedData.markedQuestions.slice(0, activeQuizQuestions.length)
+                        : new Array(activeQuizQuestions.length).fill(false);
+
+                    while (markedQuestions.length < activeQuizQuestions.length) {
+                        markedQuestions.push(false);
+                    }
+
+                    const importedFilters = importedData.filters || {};
+                    filterWrong.checked = importedFilters.wrong !== false;
+                    filterUnanswered.checked = importedFilters.unanswered !== false;
+                    filterCorrect.checked = importedFilters.correct !== false;
+
+                    selectedSource = importedData.source || selectedSource;
+                    if (importedData.quizTitle) {
+                        quizTitle.textContent = importedData.quizTitle;
+                    }
+
+                    examSubmitted = true;
+                    clearInterval(globalTimer);
+                    document.body.style.alignItems = 'flex-start';
+                    startContainer.style.display = 'none';
+
+                    const importedScore = activeQuizQuestions.reduce(
+                        (count, question, index) => count + (userAnswers[index] === question.answer ? 1 : 0),
+                        0
+                    );
+                    showResultsPage(importedScore);
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                } catch (error) {
+                    console.error(error);
+                    alert(`فایل انتخاب‌شده قابل ورود نیست: ${error.message}`);
+                } finally {
+                    importResultsInput.value = '';
+                }
+            };
+
+            reader.onerror = () => {
+                alert('خواندن فایل با خطا مواجه شد. لطفاً دوباره تلاش کنید.');
+                importResultsInput.value = '';
+            };
+
+            reader.readAsText(file, 'utf-8');
         }
 
         function saveResultsAsPdf() {
