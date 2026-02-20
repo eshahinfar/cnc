@@ -475,6 +475,60 @@
             box-shadow: 0 6px 12px rgba(0,0,0,0.08);
         }
 
+        .review-question.status-correct {
+            border-right: 6px solid var(--success-color);
+            background: linear-gradient(90deg, rgba(46, 204, 113, 0.08), #fff 30%);
+        }
+
+        .review-question.status-unanswered {
+            border-right: 6px solid var(--warning-color);
+            background: linear-gradient(90deg, rgba(243, 156, 18, 0.12), #fff 30%);
+        }
+
+        .review-question.status-wrong {
+            border-right: 6px solid var(--accent-color);
+            background: linear-gradient(90deg, rgba(231, 76, 60, 0.1), #fff 30%);
+        }
+
+        .review-question-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-bottom: 10px;
+        }
+
+        .review-status-tag {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 4px 10px;
+            border-radius: 999px;
+            font-size: 0.84rem;
+            font-weight: 700;
+            border: 1px solid transparent;
+            white-space: nowrap;
+        }
+
+        .review-status-tag.correct {
+            background-color: #d4edda;
+            color: #1d6e3a;
+            border-color: #9ad3ad;
+        }
+
+        .review-status-tag.unanswered {
+            background-color: #fff2d9;
+            color: #915f00;
+            border-color: #f5cf87;
+        }
+
+        .review-status-tag.wrong {
+            background-color: #f8d7da;
+            color: #91222f;
+            border-color: #f0a2a9;
+        }
+
         .review-option { display: flex; align-items: center; background-color: #f8f9fa; border: 1px solid #e9ecef; border-radius: 8px; padding: 10px 15px; margin-bottom: 8px; gap: 10px; }
         .review-option.user-incorrect { background-color: #f8d7da !important; border-color: var(--accent-color) !important; }
         .review-option.correct-answer { background-color: #d4edda !important; border-color: var(--success-color) !important; }
@@ -1271,9 +1325,15 @@
                 return;
             }
 
-            reviewContent.innerHTML = questionsToReview.map(({q, i}) => {
+            reviewContent.innerHTML = questionsToReview.map(({q, i, status}) => {
                 const userAnswerIndex = userAnswers[i];
                 let imageReviewHTML = q.image ? `<img src="${q.image}" alt="تصویر سوال" class="question-image">` : '';
+                const statusMap = {
+                    correct: { icon: 'fa-circle-check', label: 'پاسخ صحیح', className: 'correct' },
+                    unanswered: { icon: 'fa-circle-question', label: 'بی‌پاسخ', className: 'unanswered' },
+                    wrong: { icon: 'fa-circle-xmark', label: 'پاسخ اشتباه', className: 'wrong' }
+                };
+                const currentStatus = statusMap[status];
                 
                 let optionsReviewHTML = q.options.map((opt, optIndex) => {
                     let classStr = 'review-option';
@@ -1292,8 +1352,11 @@
                 }).join('');
 
                 return `
-                    <div class="review-question">
-                        <p><strong>${i + 1}. ${q.question}</strong></p>
+                    <div class="review-question status-${status}">
+                        <div class="review-question-header">
+                            <p><strong>${i + 1}. ${q.question}</strong></p>
+                            <span class="review-status-tag ${currentStatus.className}"><i class="fas ${currentStatus.icon}"></i>${currentStatus.label}</span>
+                        </div>
                         ${imageReviewHTML}
                         <div style="margin-top: 15px;">${optionsReviewHTML}</div>
                     </div>`;
