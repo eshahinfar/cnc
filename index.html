@@ -547,6 +547,7 @@
             <div class="results-toolbar">
                 <div class="toolbar-group">
                     <button class="btn btn-primary" id="restart-btn"><i class="fas fa-redo"></i> آزمون مجدد</button>
+                    <button class="btn btn-warning" id="retake-filtered-btn"><i class="fas fa-filter"></i> آزمون براساس فیلتر</button>
                     <button class="btn btn-success" id="save-pdf-btn"><i class="fas fa-file-pdf"></i> ذخیره PDF</button>
                 </div>
                 <div class="toolbar-group" id="review-filters">
@@ -601,6 +602,7 @@
         const resultsBadge = document.getElementById('results-badge');
         const confettiStrip = document.getElementById('confetti-strip');
         const restartBtn = document.getElementById('restart-btn');
+        const retakeFilteredBtn = document.getElementById('retake-filtered-btn');
         const retryQuizBtn = document.getElementById('retry-quiz-btn');
         const savePdfBtn = document.getElementById('save-pdf-btn');
         const reviewContent = document.getElementById('review-content');
@@ -620,6 +622,7 @@
         let markedQuestions = [];
         let globalTimer;
         let examSubmitted = false;
+        let currentTimePerQuestion = 1;
         const QUESTION_SOURCES = {
             questions: {
                 title: 'آزمون تراشکاری CNC',
@@ -747,6 +750,7 @@
         markBtn.addEventListener('click', toggleMarkQuestion);
         submitBtn.addEventListener('click', confirmAndSubmit);
         restartBtn.addEventListener('click', retryExam);
+        retakeFilteredBtn.addEventListener('click', retakeBasedOnFilters);
         retryQuizBtn.addEventListener('click', retryExam);
         [filterWrong, filterUnanswered, filterCorrect].forEach(filterEl => {
             filterEl.addEventListener('change', () => displayReview());
@@ -841,6 +845,7 @@
         
         function startQuiz(timePerQuestion) {
             examSubmitted = false;
+            currentTimePerQuestion = timePerQuestion;
             currentQuestionIndex = 0;
             document.body.style.alignItems = 'flex-start';
             startContainer.style.display = 'none';
@@ -1167,6 +1172,35 @@
 
         function retryExam() {
             location.reload();
+        }
+
+        function retakeBasedOnFilters() {
+            const activeFilters = {
+                wrong: filterWrong.checked,
+                unanswered: filterUnanswered.checked,
+                correct: filterCorrect.checked
+            };
+
+            if (!Object.values(activeFilters).some(Boolean)) {
+                alert('لطفاً حداقل یک فیلتر برای آزمون مجدد انتخاب کنید.');
+                return;
+            }
+
+            const retakeQuestions = activeQuizQuestions.filter((question, index) => {
+                const status = getReviewStatus(index, question);
+                return activeFilters[status];
+            });
+
+            if (retakeQuestions.length === 0) {
+                alert('با فیلترهای انتخاب‌شده، سوالی برای آزمون مجدد وجود ندارد.');
+                return;
+            }
+
+            activeQuizQuestions = [...retakeQuestions];
+            userAnswers = new Array(activeQuizQuestions.length).fill(null);
+            markedQuestions = new Array(activeQuizQuestions.length).fill(false);
+
+            startQuiz(currentTimePerQuestion);
         }
 
         function shuffleArray(array) {
