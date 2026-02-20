@@ -28,6 +28,8 @@
             --warning-color: #f39c12;
             --dark-color: #34495e;
             --brand-purple: #7b61ff;
+            --brand-teal: #12b8a6;
+            --brand-pink: #ff5fa2;
             --text-muted: #6b7785;
             --shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
             --font-family: 'Vazirmatn', sans-serif;
@@ -42,9 +44,11 @@
 
         body {
             background:
-                radial-gradient(circle at top right, rgba(123, 97, 255, 0.2), transparent 35%),
-                radial-gradient(circle at bottom left, rgba(52, 152, 219, 0.25), transparent 40%),
-                linear-gradient(160deg, #eef3fb 0%, #f7f9fd 50%, #ecf6ff 100%);
+                radial-gradient(circle at 12% 15%, rgba(255, 95, 162, 0.18), transparent 28%),
+                radial-gradient(circle at 88% 12%, rgba(123, 97, 255, 0.2), transparent 34%),
+                radial-gradient(circle at 14% 85%, rgba(18, 184, 166, 0.16), transparent 30%),
+                radial-gradient(circle at 85% 82%, rgba(52, 152, 219, 0.2), transparent 36%),
+                linear-gradient(160deg, #eef3fb 0%, #f7f9fd 45%, #ecf6ff 100%);
             color: var(--dark-color);
             line-height: 1.7;
             display: flex;
@@ -119,10 +123,9 @@
 
         .platform-instructions {
             width: 100%;
-            max-width: 880px;
             text-align: right;
-            background: #ffffff;
-            border: 1px solid #e4ebf6;
+            background: linear-gradient(140deg, rgba(255, 95, 162, 0.12), rgba(123, 97, 255, 0.1), rgba(18, 184, 166, 0.12));
+            border: 1px solid #d8e4fb;
             border-radius: 14px;
             padding: 16px 18px;
             box-shadow: 0 8px 18px rgba(44, 62, 80, 0.08);
@@ -132,6 +135,7 @@
         .platform-instructions h3 {
             font-size: 1rem;
             margin-bottom: 8px;
+            color: #273752;
         }
 
         .platform-instructions ul {
@@ -154,8 +158,8 @@
             width: 100%;
             max-width: 920px;
             margin-top: 0;
-            background: #fff;
-            border: 1px solid #e4ebf6;
+            background: linear-gradient(180deg, #ffffff, #f9fbff);
+            border: 1px solid #dfe8fb;
             border-radius: 20px;
             padding: 28px;
             box-shadow: 0 14px 30px rgba(37, 52, 71, 0.08);
@@ -192,10 +196,10 @@
         }
 
         .source-option input[type="radio"]:checked + label {
-            border-color: var(--primary-color);
-            background-color: #e9f5ff;
+            border-color: transparent;
+            background: linear-gradient(120deg, rgba(123, 97, 255, 0.15), rgba(18, 184, 166, 0.14));
             color: var(--secondary-color);
-            box-shadow: 0 4px 10px rgba(52, 152, 219, 0.15);
+            box-shadow: 0 6px 14px rgba(83, 96, 226, 0.2);
         }
 
         #category-checkboxes { 
@@ -204,8 +208,8 @@
             flex-wrap: wrap; 
             gap: 15px 25px; 
             width: 100%;
-            border: 1px solid #e1e9f2;
-            background: linear-gradient(180deg, #f8fbff, #f4f8fc);
+            border: 1px solid #dce7f7;
+            background: linear-gradient(130deg, rgba(123, 97, 255, 0.07), rgba(18, 184, 166, 0.08));
             padding: 20px; 
             border-radius: 12px; 
         }
@@ -272,8 +276,8 @@
         #settings-container {
             display: flex;
             gap: 20px;
-            background: linear-gradient(180deg, #f8fbff, #f4f8fc);
-            border: 1px solid #e1e9f2;
+            background: linear-gradient(120deg, rgba(52, 152, 219, 0.1), rgba(255, 95, 162, 0.09));
+            border: 1px solid #dce5f5;
             padding: 15px 20px;
             border-radius: 12px;
             width: 100%;
@@ -539,16 +543,6 @@
                 <p class="intro-text">برای شروع آزمون، ابتدا منبع سوالات، دسته‌بندی‌ها، تعداد سوال و زمان هر سوال را تنظیم کنید و سپس روی «شروع آزمون» بزنید.</p>
             </div>
 
-            <div class="platform-instructions">
-                <h3><i class="fas fa-circle-info"></i> راهنمای استفاده از پلتفرم آزمون</h3>
-                <ul>
-                    <li>پس از انتخاب تنظیمات، با دکمه «شروع آزمون» وارد سوالات شوید.</li>
-                    <li>برای پاسخ‌دهی سریع می‌توانید از کلیدهای <strong>1</strong> تا <strong>4</strong> استفاده کنید.</li>
-                    <li>برای رفتن به سوال <strong>بعدی</strong> کلید <strong>←</strong> و برای سوال <strong>قبلی</strong> کلید <strong>→</strong> را بزنید.</li>
-                    <li>با دکمه «نشان‌گذاری» سوالات مهم را علامت بزنید و در پایان «تحویل آزمون» را انتخاب کنید.</li>
-                </ul>
-            </div>
-            
             <div class="start-options">
                 <div id="question-source-selector">
                     <div class="source-option">
@@ -574,6 +568,15 @@
                     </div>
                  </div>
                 <p style="font-size: 0.9em; color: #555;">(مجموع سوالات موجود: <strong id="total-available-questions">0</strong>)</p>
+                <div class="platform-instructions">
+                    <h3><i class="fas fa-circle-info"></i> راهنمای استفاده از پلتفرم آزمون</h3>
+                    <ul>
+                        <li>پس از انتخاب تنظیمات، با دکمه «شروع آزمون» وارد سوالات شوید.</li>
+                        <li>برای پاسخ‌دهی سریع می‌توانید از کلیدهای <strong>1</strong> تا <strong>4</strong> استفاده کنید.</li>
+                        <li>برای رفتن به سوال <strong>بعدی</strong> کلید <strong>←</strong> و برای سوال <strong>قبلی</strong> کلید <strong>→</strong> را بزنید.</li>
+                        <li>با دکمه «نشان‌گذاری» سوالات مهم را علامت بزنید و در پایان «تحویل آزمون» را انتخاب کنید.</li>
+                    </ul>
+                </div>
             </div>
 
             <button class="btn" id="start-btn">شروع آزمون <i class="fas fa-arrow-left"></i></button>
