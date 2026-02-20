@@ -366,6 +366,21 @@
             flex-wrap: wrap;
         }
 
+        .review-status-filters {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            flex-wrap: wrap;
+            background: #fff;
+            border: 1px solid #e0e6ed;
+            border-radius: 10px;
+            padding: 8px 12px;
+        }
+
+        .review-status-filters .checkbox-item label {
+            font-weight: 500;
+        }
+
         .review-container { padding-top: 20px; }
         .review-question {
             background-color: #fff;
@@ -535,8 +550,20 @@
                     <button class="btn btn-success" id="save-pdf-btn"><i class="fas fa-file-pdf"></i> ذخیره PDF</button>
                 </div>
                 <div class="toolbar-group" id="review-filters">
-                     <button class="btn btn-primary" id="review-all-btn">نمایش همه</button>
-                     <button class="btn btn-warning" id="review-marked-btn">فقط نشان شده ها</button>
+                    <div class="review-status-filters">
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="filter-wrong" checked>
+                            <label for="filter-wrong">پاسخ اشتباه</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="filter-unanswered" checked>
+                            <label for="filter-unanswered">بی‌پاسخ</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="filter-correct" checked>
+                            <label for="filter-correct">پاسخ صحیح</label>
+                        </div>
+                    </div>
                 </div>
             </div>
              <div class="review-container" id="review-content"></div>
@@ -577,8 +604,9 @@
         const retryQuizBtn = document.getElementById('retry-quiz-btn');
         const savePdfBtn = document.getElementById('save-pdf-btn');
         const reviewContent = document.getElementById('review-content');
-        const reviewAllBtn = document.getElementById('review-all-btn');
-        const reviewMarkedBtn = document.getElementById('review-marked-btn');
+        const filterWrong = document.getElementById('filter-wrong');
+        const filterUnanswered = document.getElementById('filter-unanswered');
+        const filterCorrect = document.getElementById('filter-correct');
         const scrollTopBtn = document.getElementById('scroll-top-btn');
         const totalAvailableQuestionsSpan = document.getElementById('total-available-questions');
         const sourceSelector = document.getElementById('question-source-selector');
@@ -720,8 +748,9 @@
         submitBtn.addEventListener('click', confirmAndSubmit);
         restartBtn.addEventListener('click', retryExam);
         retryQuizBtn.addEventListener('click', retryExam);
-        reviewAllBtn.addEventListener('click', () => displayReview('all'));
-        reviewMarkedBtn.addEventListener('click', () => displayReview('marked'));
+        [filterWrong, filterUnanswered, filterCorrect].forEach(filterEl => {
+            filterEl.addEventListener('change', () => displayReview());
+        });
         savePdfBtn.addEventListener('click', saveResultsAsPdf);
         scrollTopBtn.addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
 
@@ -988,7 +1017,7 @@
             scoreSummary.textContent = `شما به ${score} سوال از ${activeQuizQuestions.length} سوال پاسخ صحیح دادید.`;
             updateFunResults(Number(percentage));
             
-            displayReview('all');
+            displayReview();
         }
 
         function updateFunResults(percentage) {
@@ -1025,13 +1054,25 @@
             }
         }
 
-        function displayReview(filter = 'all') {
-            const questionsToReview = (filter === 'marked')
-                ? activeQuizQuestions.map((q, i) => ({q, i})).filter(item => markedQuestions[item.i])
-                : activeQuizQuestions.map((q, i) => ({q, i}));
+        function getReviewStatus(questionIndex, question) {
+            const userAnswerIndex = userAnswers[questionIndex];
+            if (userAnswerIndex === null) return 'unanswered';
+            return userAnswerIndex === question.answer ? 'correct' : 'wrong';
+        }
 
-            if (filter === 'marked' && questionsToReview.length === 0) {
-                reviewContent.innerHTML = '<p style="text-align:center; padding: 20px; font-weight: 500;">هیچ سوالی برای بازبینی نشان‌گذاری نشده است.</p>';
+        function displayReview() {
+            const activeFilters = {
+                wrong: filterWrong.checked,
+                unanswered: filterUnanswered.checked,
+                correct: filterCorrect.checked
+            };
+
+            const questionsToReview = activeQuizQuestions
+                .map((q, i) => ({ q, i, status: getReviewStatus(i, q) }))
+                .filter(item => activeFilters[item.status]);
+
+            if (questionsToReview.length === 0) {
+                reviewContent.innerHTML = '<p style="text-align:center; padding: 20px; font-weight: 500;">هیچ سوالی با فیلترهای انتخاب‌شده پیدا نشد.</p>';
                 return;
             }
 
@@ -1138,4 +1179,3 @@
     </script>
 </body>
 </html>
-
