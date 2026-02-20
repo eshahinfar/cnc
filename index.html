@@ -354,6 +354,8 @@
         .info-item { display: flex; align-items: center; gap: 8px; font-size: 1rem; }
         .info-item i { font-size: 1.2rem; color: var(--primary-color); }
         #timer-display { background-color: var(--warning-color); color: white; padding: 5px 15px; border-radius: 50px; font-weight: 700; font-size: 1.2rem; display: flex; align-items: center; gap: 10px; transition: background-color 0.5s; }
+        .timer-controls { display: flex; align-items: center; }
+        #pause-timer-btn { min-width: 120px; }
         .main-content { display: flex; flex-direction: row; min-height: 500px; }
         .questions-section { flex: 3; padding: 25px; }
         .question-nav { flex: 1; padding: 25px; background-color: #f9f9f9; border-right: 1px solid #eee; min-width: 300px; display: flex; flex-direction: column; }
@@ -611,6 +613,9 @@
                 <div class="info-item"><i class="fas fa-list-ol"></i><span>تعداد کل: <span id="total-q-count">0</span></span></div>
                 <div class="info-item"><i class="fas fa-check-square"></i><span>پاسخ داده شده: <span id="answered-count">0</span></span></div>
                 <div class="info-item"><i class="fas fa-bookmark"></i><span>نشان شده: <span id="marked-count">0</span></span></div>
+                <div class="timer-controls">
+                    <button class="btn btn-warning" id="pause-timer-btn" type="button"><i class="fas fa-pause"></i> توقف زمان</button>
+                </div>
             </div>
             
             <div class="main-content">
@@ -693,6 +698,7 @@
         const answeredCount = document.getElementById('answered-count');
         const markedCount = document.getElementById('marked-count');
         const timerDisplay = document.querySelector('#timer-display span');
+        const pauseTimerBtn = document.getElementById('pause-timer-btn');
         const resultsPage = document.getElementById('results-page');
         const scoreElement = document.getElementById('score');
         const scoreSummary = document.getElementById('score-summary');
@@ -721,6 +727,8 @@
         let examSubmitted = false;
         let currentTimePerQuestion = 1;
         let isNoTimeLimit = false;
+        let isTimerPaused = false;
+        let remainingSeconds = 0;
         const QUESTION_SOURCES = {
             questions: {
                 title: 'آزمون تراشکاری CNC',
@@ -848,6 +856,7 @@
         nextBtn.addEventListener('click', handleNextButton);
         markBtn.addEventListener('click', toggleMarkQuestion);
         submitBtn.addEventListener('click', confirmAndSubmit);
+        pauseTimerBtn.addEventListener('click', toggleTimerPause);
         restartBtn.addEventListener('click', retryExam);
         retakeFilteredBtn.addEventListener('click', retakeBasedOnFilters);
         retryQuizBtn.addEventListener('click', retryExam);
@@ -1004,11 +1013,38 @@
                 timerDisplay.textContent = 'بدون محدودیت';
                 timerDisplay.parentElement.style.background = 'var(--success-color)';
                 clearInterval(globalTimer);
+                isTimerPaused = false;
+                pauseTimerBtn.style.display = 'none';
             } else {
                 const totalTime = activeQuizQuestions.length * timePerQuestion * 60;
+                isTimerPaused = false;
+                pauseTimerBtn.style.display = 'flex';
+                pauseTimerBtn.innerHTML = '<i class="fas fa-pause"></i> توقف زمان';
+                pauseTimerBtn.classList.remove('btn-success');
+                pauseTimerBtn.classList.add('btn-warning');
                 startGlobalTimer(totalTime);
             }
             renderUI();
+        }
+
+        function toggleTimerPause() {
+            if (isNoTimeLimit || examSubmitted) return;
+
+            isTimerPaused = !isTimerPaused;
+
+            if (isTimerPaused) {
+                clearInterval(globalTimer);
+                timerDisplay.parentElement.style.background = 'var(--secondary-color)';
+                pauseTimerBtn.innerHTML = '<i class="fas fa-play"></i> ادامه زمان';
+                pauseTimerBtn.classList.remove('btn-warning');
+                pauseTimerBtn.classList.add('btn-success');
+                return;
+            }
+
+            pauseTimerBtn.innerHTML = '<i class="fas fa-pause"></i> توقف زمان';
+            pauseTimerBtn.classList.remove('btn-success');
+            pauseTimerBtn.classList.add('btn-warning');
+            startGlobalTimer(remainingSeconds);
         }
 
         function renderUI() {
@@ -1136,14 +1172,14 @@
         }
         
         function startGlobalTimer(duration) {
-            let timer = Math.round(duration);
+            remainingSeconds = Math.round(duration);
             clearInterval(globalTimer);
             globalTimer = setInterval(() => {
-                const minutes = String(Math.floor(timer / 60)).padStart(2, '0');
-                const seconds = String(timer % 60).padStart(2, '0');
+                const minutes = String(Math.floor(remainingSeconds / 60)).padStart(2, '0');
+                const seconds = String(remainingSeconds % 60).padStart(2, '0');
                 timerDisplay.textContent = `${minutes}:${seconds}`;
-                timerDisplay.parentElement.style.background = timer < 60 ? 'var(--accent-color)' : 'var(--warning-color)';
-                if (--timer < 0) {
+                timerDisplay.parentElement.style.background = remainingSeconds < 60 ? 'var(--accent-color)' : 'var(--warning-color)';
+                if (--remainingSeconds < 0) {
                     clearInterval(globalTimer);
                     submitExam();
                 }
